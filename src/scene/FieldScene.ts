@@ -415,19 +415,45 @@ export class FieldScene {
     this.farmWorldGroup.add(this.cloudGroup);
     this.farmWorldGroup.add(this.rainGroup);
 
-    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xf1f5f9, flatShading: true });
+    const cloudMatMain = new THREE.MeshLambertMaterial({ color: 0xf8fafc, flatShading: true });
+    const cloudMatSub = new THREE.MeshLambertMaterial({ color: 0xe2e8f0, flatShading: true });
+    const cloudMatShadow = new THREE.MeshLambertMaterial({ color: 0xcbd5e1, flatShading: true });
+
     const cloudConfigs = [
-      { x: -3.2, y: 5.5, z: -2.0, sx: 2.1, sy: 0.65 },
-      { x: 0.2, y: 5.7, z: -2.2, sx: 1.5, sy: 0.52 },
-      { x: 3.1, y: 5.1, z: -2.0, sx: 1.45, sy: 0.5 },
+      { x: -3.2, y: 5.4, z: -2.0, scale: 1.15 },
+      { x: 0.3, y: 5.65, z: -2.2, scale: 0.95 },
+      { x: 3.2, y: 5.1, z: -2.0, scale: 0.9 },
     ];
 
-    cloudConfigs.forEach((cfg) => {
-      const geo = new THREE.SphereGeometry(1, 9, 7);
-      geo.scale(cfg.sx, cfg.sy, 0.8);
-      const mesh = new THREE.Mesh(geo, cloudMat);
-      mesh.position.set(cfg.x, cfg.y, cfg.z);
-      this.cloudGroup.add(mesh);
+    cloudConfigs.forEach((cfg, idx) => {
+      const cluster = new THREE.Group();
+      cluster.position.set(cfg.x, cfg.y, cfg.z);
+      cluster.scale.setScalar(cfg.scale);
+
+      // 左側の五角柱ブロック（斜めに傾けてカクカクした輪郭を作る）
+      const leftPolyGeo = new THREE.CylinderGeometry(0.95, 0.85, 0.75, 5);
+      leftPolyGeo.rotateX(Math.PI / 2);
+      const leftPoly = new THREE.Mesh(leftPolyGeo, cloudMatMain);
+      leftPoly.position.set(-0.65, -0.05, 0);
+      leftPoly.rotation.set(0.2, -0.25, 0.38 + idx * 0.1);
+      cluster.add(leftPoly);
+
+      // 右側の四角ブロック（ダイヤモンド状に傾けて重ねる）
+      const rightBoxGeo = new THREE.BoxGeometry(1.45, 1.15, 0.82);
+      const rightBox = new THREE.Mesh(rightBoxGeo, cloudMatSub);
+      rightBox.position.set(0.55, 0.08, 0.12);
+      rightBox.rotation.set(-0.18, 0.28, -0.62 - idx * 0.08);
+      cluster.add(rightBox);
+
+      // 下部・奥のアクセント多面体ブロック（さらにローポリの角を強調）
+      const bottomPolyGeo = new THREE.OctahedronGeometry(0.78, 0);
+      bottomPolyGeo.scale(1.35, 0.85, 0.75);
+      const bottomPoly = new THREE.Mesh(bottomPolyGeo, cloudMatShadow);
+      bottomPoly.position.set(-0.05, -0.28, -0.15);
+      bottomPoly.rotation.set(0.3, 0.4, 0.25);
+      cluster.add(bottomPoly);
+
+      this.cloudGroup.add(cluster);
     });
 
     // 雨のストリーク（黒ではなく透き通った水色〜シルバーブルー）

@@ -96,20 +96,20 @@ export class FarmerModel {
     const mustacheMat = this.mat(0x451a03);
 
     // --- 胴体（小太りのおっさん・オーバーオール） ---
-    const torsoGeo = new THREE.CylinderGeometry(0.56, 0.66, 1.25, 8);
+    const torsoGeo = new THREE.CylinderGeometry(0.56, 0.66, 1.25, 6);
     const torsoMesh = new THREE.Mesh(torsoGeo, overallMat);
     torsoMesh.position.y = 1.45;
     torsoMesh.castShadow = true;
     this.bodyGroup.add(torsoMesh);
 
     // 胸元のU字インナー（白シャツが見える部分）
-    const bibNeckGeo = new THREE.CylinderGeometry(0.32, 0.25, 0.45, 7);
+    const bibNeckGeo = new THREE.CylinderGeometry(0.32, 0.25, 0.45, 5);
     const bibNeckMesh = new THREE.Mesh(bibNeckGeo, shirtMat);
     bibNeckMesh.position.set(0, 1.88, 0.34);
     this.bodyGroup.add(bibNeckMesh);
 
     // お腹の半円ポケット (Sketch 1)
-    const pocketGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.12, 8, 1, false, 0, Math.PI);
+    const pocketGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.12, 6, 1, false, 0, Math.PI);
     const pocketMesh = new THREE.Mesh(pocketGeo, pocketMat);
     pocketMesh.rotation.x = Math.PI / 2;
     pocketMesh.rotation.z = Math.PI;
@@ -120,7 +120,7 @@ export class FarmerModel {
     this.headGroup.position.set(0, 2.52, 0);
     this.bodyGroup.add(this.headGroup);
 
-    const headGeo = new THREE.SphereGeometry(0.54, 8, 7);
+    const headGeo = new THREE.IcosahedronGeometry(0.55, 1);
     headGeo.scale(1.05, 0.96, 1.0);
     const headMesh = new THREE.Mesh(headGeo, skinMat);
     headMesh.castShadow = true;
@@ -143,58 +143,64 @@ export class FarmerModel {
     hatGroup.position.set(0, 0.38, 0);
     this.headGroup.add(hatGroup);
 
-    const brimGeo = new THREE.CylinderGeometry(1.28, 1.38, 0.08, 10);
+    const brimGeo = new THREE.CylinderGeometry(1.28, 1.38, 0.08, 7);
     const brimMesh = new THREE.Mesh(brimGeo, hatMat);
     brimMesh.castShadow = true;
     hatGroup.add(brimMesh);
 
-    const bandGeo = new THREE.CylinderGeometry(0.58, 0.62, 0.16, 8);
+    const bandGeo = new THREE.CylinderGeometry(0.58, 0.62, 0.16, 6);
     const bandMesh = new THREE.Mesh(bandGeo, hatBandMat);
     bandMesh.position.y = 0.1;
     hatGroup.add(bandMesh);
 
-    const crownGeo = new THREE.CylinderGeometry(0.46, 0.58, 0.45, 8);
+    const crownGeo = new THREE.CylinderGeometry(0.46, 0.58, 0.45, 6);
     const crownMesh = new THREE.Mesh(crownGeo, hatMat);
     crownMesh.position.y = 0.38;
     crownMesh.castShadow = true;
     hatGroup.add(crownMesh);
 
-    // --- 右腕（帽子のつばの外までしっかり見える長さ） ---
+    // --- 右腕（角ばったローポリの袖＋少し離れた四角いローポリの手） ---
     this.rightArmPivot.position.set(-0.64, 1.92, 0);
     this.bodyGroup.add(this.rightArmPivot);
 
-    const rUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.52, 6), shirtMat);
-    rUpperArm.position.set(-0.26, -0.18, 0);
+    const rUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.54, 0.34), shirtMat);
+    rUpperArm.position.set(-0.24, -0.16, 0);
     rUpperArm.rotation.z = -0.55;
+    rUpperArm.castShadow = true;
     this.rightArmPivot.add(rUpperArm);
 
-    const rHand = new THREE.Mesh(new THREE.SphereGeometry(0.26, 7, 7), skinMat);
-    rHand.position.set(-0.56, -0.42, 0.1);
+    const rHand = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.36), skinMat);
+    rHand.position.set(-0.58, -0.45, 0.08);
+    rHand.rotation.set(0.2, 0.35, -0.55);
+    rHand.castShadow = true;
     this.rightArmPivot.add(rHand);
 
     // くわ・スコップは右手に配置
-    this.hoeInHand.position.set(-0.56, -0.35, 0.25);
+    this.hoeInHand.position.set(-0.58, -0.38, 0.25);
     this.rightArmPivot.add(this.hoeInHand);
 
-    this.fertilizerShovel.position.set(-0.56, -0.35, 0.35);
+    this.fertilizerShovel.position.set(-0.58, -0.38, 0.35);
     this.fertilizerShovel.visible = false;
     this.rightArmPivot.add(this.fertilizerShovel);
 
-    // --- 左腕（横向き時にカメラ手前側になる腕） ---
+    // --- 左腕（横向き時にカメラ手前側になる腕：角ばった袖＋四角いローポリの手） ---
     this.leftArmPivot.position.set(0.64, 1.92, 0);
     this.bodyGroup.add(this.leftArmPivot);
 
-    const lUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.52, 6), shirtMat);
-    lUpperArm.position.set(0.26, -0.18, 0);
+    const lUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.54, 0.34), shirtMat);
+    lUpperArm.position.set(0.24, -0.16, 0);
     lUpperArm.rotation.z = 0.55;
+    lUpperArm.castShadow = true;
     this.leftArmPivot.add(lUpperArm);
 
-    const lHand = new THREE.Mesh(new THREE.SphereGeometry(0.26, 7, 7), skinMat);
-    lHand.position.set(0.56, -0.42, 0.1);
+    const lHand = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.36), skinMat);
+    lHand.position.set(0.58, -0.45, 0.08);
+    lHand.rotation.set(0.2, -0.35, 0.55);
+    lHand.castShadow = true;
     this.leftArmPivot.add(lHand);
 
     // トロフィーは左手
-    this.trophyInHand.position.set(0.56, 0.15, 0.1);
+    this.trophyInHand.position.set(0.58, 0.15, 0.1);
     this.trophyInHand.visible = false;
     this.leftArmPivot.add(this.trophyInHand);
 
