@@ -1,0 +1,27 @@
+{
+  "name": "spinach-farming-game",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "start": "node index.js",
+    "preview": "vite preview --port 3000 --host",
+    "deploy": "./scripts/lambda-web.sh deploy",
+    "drop": "./scripts/lambda-web.sh drop",
+    "status": "./scripts/lambda-web.sh status"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0"
+  }
+}

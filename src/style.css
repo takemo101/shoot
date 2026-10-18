@@ -1,0 +1,331 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #1e293b;
+  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "MS PGothic", monospace;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* PS1風のローレゾ・ピクセル感を強調 */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* =========================================
+   左上: 縦型体力ゲージ (自然な緑〜黄〜赤のスタミナカラー)
+   ========================================= */
+.hud-stamina {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.stamina-bar-outer {
+  width: 38px;
+  height: 240px;
+  background-color: rgba(28, 25, 23, 0.78);
+  border: 4px solid #78350f;
+   outline: 2px solid #fef3c7;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.stamina-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+  transition: height 0.35s ease, background 0.35s ease;
+}
+
+.stamina-bar-fill.warning {
+  background: linear-gradient(180deg, #facc15 0%, #d97706 100%);
+}
+
+.stamina-bar-fill.danger {
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+}
+
+.stamina-label {
+  background: rgba(41, 37, 36, 0.9);
+  color: #fef3c7;
+  border: 2px solid #b45309;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================
+   右上: 日数・天候・状態ヒント
+   ========================================= */
+.hud-info {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 10;
+}
+
+.day-display,
+.weather-display,
+.phase-display {
+  background: rgba(41, 37, 36, 0.88);
+  color: #fef3c7;
+  padding: 6px 14px;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid #d97706;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.field-hint {
+  margin-top: 4px;
+  background: rgba(28, 25, 23, 0.86);
+  color: #fde047;
+  padding: 7px 13px;
+  font-size: 13px;
+  max-width: 310px;
+  text-align: right;
+  border: 1px solid #b45309;
+  border-radius: 5px;
+  line-height: 1.4;
+}
+
+/* =========================================
+   中央: 作業開始のメニュー
+   落ち着いた木枠付きダークウィンドウ
+   ========================================= */
+.morning-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 348px;
+  min-height: 450px;
+  background-color: rgba(24, 24, 27, 0.94);
+  color: #fefce8;
+  border: 4px solid #b45309;
+  outline: 2px solid #fef3c7;
+  border-radius: 8px;
+  padding: 28px 34px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6);
+  z-index: 20;
+}
+
+.menu-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fde047;
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(217, 119, 6, 0.45);
+}
+
+.action-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.action-item {
+  font-size: 19px;
+  font-weight: bold;
+  color: #fefce8;
+  padding: 7px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 5px;
+  transition: background-color 0.12s ease, transform 0.1s ease;
+}
+
+.action-item::before {
+  content: "▶";
+  font-size: 14px;
+  color: #facc15;
+  margin-right: 10px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.action-item:hover:not(.disabled),
+.action-item:focus-visible:not(.disabled) {
+  background-color: rgba(180, 83, 9, 0.38);
+  transform: translateX(4px);
+}
+
+.action-item:hover:not(.disabled)::before {
+  opacity: 1;
+}
+
+.action-item.recommended .action-name::after {
+  content: " ★";
+  color: #facc15;
+  font-size: 15px;
+}
+
+.action-item.disabled {
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.action-cost {
+  font-size: 13px;
+  font-weight: normal;
+  color: #fcd34d;
+}
+
+.action-item.disabled .action-cost {
+  color: #4b5563;
+}
+
+.action-desc {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(217, 119, 6, 0.4);
+  font-size: 13px;
+  color: #e7e5e4;
+  min-height: 44px;
+  line-height: 1.45;
+}
+
+/* =========================================
+   作業中・夜間のメッセージバナー
+   ========================================= */
+.status-banner {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(28, 25, 23, 0.92);
+  color: #fef3c7;
+  border: 3px solid #d97706;
+  border-radius: 6px;
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-align: center;
+  z-index: 15;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* =========================================
+   品評会（結果発表）オーバーレイ
+   ========================================= */
+.contest-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36px 24px 36px;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.contest-score {
+  font-size: 84px;
+  font-weight: 900;
+  color: #fef08a;
+  text-shadow:
+    -3px -3px 0 #78350f,
+     3px -3px 0 #78350f,
+    -3px  3px 0 #78350f,
+     3px  3px 0 #78350f,
+     0px  6px 16px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.contest-rank {
+  font-size: 25px;
+  font-weight: bold;
+  color: #fef3c7;
+  background: rgba(41, 37, 36, 0.9);
+  padding: 8px 24px;
+  border: 3px solid #d97706;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.contest-details {
+  margin-top: auto;
+  background: rgba(41, 37, 36, 0.9);
+  color: #fefce8;
+  border: 3px solid #d97706;
+  border-radius: 6px;
+  padding: 14px 24px;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 520px;
+  pointer-events: auto;
+}
+
+.retry-button {
+  margin-top: 12px;
+  pointer-events: auto;
+  background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  border: 3px solid #fef3c7;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.retry-button:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05);
+}
+
+.hidden {
+  display: none !important;
+}

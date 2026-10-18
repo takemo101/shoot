@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ほうれん草栽培記 - 30日間の品評会への道</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- HUD: 左上の縦型体力ゲージ (Sketch 7) -->
+      <div id="hud-stamina" class="hud-stamina">
+        <div class="stamina-bar-outer" title="体力ゲージ">
+          <div id="stamina-bar-fill" class="stamina-bar-fill"></div>
+        </div>
+        <div class="stamina-label">体力 <span id="stamina-value">100</span></div>
+      </div>
+
+      <!-- HUD: 右上の日数・天候・月齢・状態ヒント -->
+      <div id="hud-info" class="hud-info">
+        <div id="day-display" class="day-display">1日目 / 30日</div>
+        <div id="weather-display" class="weather-display">☀️ 晴れ</div>
+        <div id="phase-display" class="phase-display">🌅 朝</div>
+        <div id="field-hint" class="field-hint">まずは「田おこし」で畑を耕そう</div>
+      </div>
+
+      <!-- 作業開始のメニュー (Sketch 3: 中央の縦長黒ウィンドウ + 白文字) -->
+      <div id="morning-menu" class="morning-menu hidden">
+        <div class="menu-title">今日の作業</div>
+        <ul id="action-list" class="action-list"></ul>
+        <div id="action-desc" class="action-desc">作業を選択してください</div>
+      </div>
+
+      <!-- メッセージバナー（作業中・夜間成長・寝込み時などのテキスト表示） -->
+      <div id="status-banner" class="status-banner hidden">
+        <div id="status-banner-text"></div>
+      </div>
+
+      <!-- 品評会（収穫後・結果発表）オーバーレイ (Sketch 9 & 10) -->
+      <div id="contest-overlay" class="contest-overlay hidden">
+        <div id="contest-score" class="contest-score">８０点</div>
+        <div id="contest-rank" class="contest-rank"></div>
+        <div id="contest-details" class="contest-details"></div>
+        <button id="retry-button" class="retry-button">もう一度栽培する</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
